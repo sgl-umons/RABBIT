@@ -349,7 +349,7 @@ def MakePrediction(contributor, apikey, min_events, min_confidence, max_queries,
                                                 activities = activities.shape[0]
                                                 )
             else:
-                result = frame_direct_result('Unknown', result_cols, contributor)
+                result = frame_direct_result('Unknown', '-', result_cols, contributor)
             result = format_result(result, verbose)
     
     elif(query_failed):
