@@ -16,3 +16,5 @@ wheels/
 
 # MacOS files
 .DS_Store
+
+tmp/

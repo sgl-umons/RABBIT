@@ -2,6 +2,7 @@ from enum import Enum
 
 import pandas as pd
 
+from .predictor.models import Predictor, ONNXPredictor
 from .sources import GitHubAPIExtractor
 from .predictor import predict_user_type
 from .errors import RabbitErrors, NotFoundError
@@ -29,6 +30,7 @@ def _save_results(all_results, output_type: OutputFormat, save_path: str):
 def _process_single_contributor(
     contributor: str,
     gh_api_client: GitHubAPIExtractor,
+    predictor: Predictor,
     min_events: int,
 ):
     """Process a single contributor to determine their type."""
@@ -41,7 +43,7 @@ def _process_single_contributor(
                 "confidence": "-",
             }
         else:
-            user_type, confidence = predict_user_type(contributor, events)
+            user_type, confidence = predict_user_type(contributor, events, predictor)
             return {
                 "contributor": contributor,
                 "type": user_type,
@@ -100,11 +102,15 @@ def run_rabbit(
     gh_api_client = GitHubAPIExtractor(api_key=api_key, max_queries=max_queries)
     all_results = pd.DataFrame()
 
+    predictor = ONNXPredictor()
+
     try:
         for contributor in track(
             contributors, description="Processing contributors..."
         ):
-            result = _process_single_contributor(contributor, gh_api_client, min_events)
+            result = _process_single_contributor(
+                contributor, gh_api_client, predictor, min_events
+            )
             all_results = pd.concat(
                 [all_results, pd.DataFrame([result])], ignore_index=True
             )

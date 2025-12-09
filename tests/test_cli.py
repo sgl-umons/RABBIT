@@ -6,7 +6,6 @@ import responses
 from typer.testing import CliRunner
 
 from rabbit.cli import app
-from rabbit.main import OutputFormat
 
 runner = CliRunner()
 
@@ -46,7 +45,7 @@ class TestCLI:
 
     def test_json_output(self, mock_run_rabbit, tmp_path):
         json_file = tmp_path / "test_output.json"
-        result = runner.invoke(app, ["octocat", "-f", "json","-o", str(json_file)])
+        result = runner.invoke(app, ["octocat", "-f", "json", "-o", str(json_file)])
 
         assert result.exit_code == 0
         assert mock_run_rabbit.call_args.kwargs["output_type"] == "json"
