@@ -148,7 +148,7 @@ def cli(
         min_confidence=min_confidence,
         max_queries=max_queries,
         output_type=output_format,
-        output_path=str(output_path),
+        output_path=str(output_path) if output_path else "",
         _verbose=verbose,
         incremental=incremental,
     )

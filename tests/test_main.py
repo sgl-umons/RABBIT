@@ -151,7 +151,7 @@ class TestRunRabbit:
         # Results that will be saved should have 3 entries
         args, _ = mock_save.call_args
         assert len(args[0]) == 3  # all_results DataFrame has 3 rows
-        assert args[1] == "text"  # output_type
+        assert args[1] == "term"  # output_type
 
     @patch("rabbit.main._save_results")
     @patch("rabbit.main._process_single_contributor")
