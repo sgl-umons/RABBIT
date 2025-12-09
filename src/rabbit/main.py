@@ -67,8 +67,8 @@ def _process_single_contributor(
             "type": "Invalid",
             "confidence": "-",
         }
-    except RabbitErrors as err:
-        raise err from err
+    except RabbitErrors as _:
+        raise
     except Exception as err:
         raise RabbitErrors(f"A critical error occurred: {str(err)}") from err
 
@@ -135,8 +135,8 @@ def run_rabbit(
     except RuntimeError as err:
         rabbit_errors = RabbitErrors(str(err))
         raise rabbit_errors from err
-    except Exception as e:
-        raise e from e
+    except Exception as _:
+        raise
     finally:
         if not incremental:
             _save_results(all_results, output_type, output_path)

@@ -43,7 +43,7 @@ def _compute_activity_sequences(events: list) -> list:
         # Filter output to keep only relevant debug info ("Warning: unused actions" and {actions})
         text = ""
         for line in captured_output.splitlines():
-            if "Warning: Unused actions" in line or line.strip().startswith("{'"):
+            if "Warning: Unused actions" in line:
                 # Keep only the part of the line after the warning
                 line = line[line.index("Warning: Unused actions") :]
                 text += line + "\n"

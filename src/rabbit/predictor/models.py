@@ -33,7 +33,6 @@ class Predictor(ABC):
 
     @abstractmethod
     def _load_model(self):
-        logger.debug(f"Loading model from {self.model_path}")
         pass
 
     @abstractmethod
@@ -42,7 +41,7 @@ class Predictor(ABC):
         Predict if a contributor is a bot or a human using the BIMBAS model.
 
         Parameters:
-            features: A dictionary with the features of the contributor {'feature_name': value}.
+            features: A Dataframe  with the features of the contributor.
 
         Returns:
             contributor_type (str) - type of contributor determined based on
@@ -64,7 +63,6 @@ class ONNXPredictor(Predictor):
         )
 
     def _load_model(self):
-        logger.debug(f"Loading ONNX model from {self.model_path}")
         try:
             self.model = onnxruntime.InferenceSession(
                 self.model_path, providers=["CPUExecutionProvider"]
