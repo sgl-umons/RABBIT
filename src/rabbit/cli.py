@@ -11,7 +11,8 @@ from . import run_rabbit, RetryableError
 
 app = typer.Typer(
     help="RABBIT is an Activity Based Bot Identification Tool that identifies bots "
-    "based on their recent activities in GitHub"
+    "based on their recent activities in GitHub",
+    add_completion=False
 )
 
 load_dotenv()
@@ -45,7 +46,7 @@ def cli(
         typer.Option(
             "--input-file",
             "-i",
-            help="Path to .txt file containing login names (one per line).",
+            help="Path to a file containing login names (one per line).",
             exists=True,
             file_okay=True,
             dir_okay=False,
