@@ -10,6 +10,10 @@ from ..errors import (
 )
 from .retry_utils import retry
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 class GitHubAPIExtractor:
     def __init__(self, api_key=None, max_queries=3):
@@ -26,6 +30,9 @@ class GitHubAPIExtractor:
     def _handle_api_response(contributor, response):
         match response.status_code:
             case 200:  # OK
+                logger.debug(
+                    f"GitHub API Rate Limit Remaining: {response.headers.get('x-ratelimit-remaining')}"
+                )
                 return response.json()
 
             case (
