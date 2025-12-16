@@ -1,5 +1,5 @@
 from .features import (
-    compute_user_features,
+    ActivityFeatureExtractor,
     FEATURE_NAMES,
 )
 from .core import compute_activity_sequences, predict_user_type, ContributorResult

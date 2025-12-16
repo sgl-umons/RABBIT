@@ -8,7 +8,7 @@ from ghmap.mapping.activity_mapper import ActivityMapper
 from ghmap.mapping.action_mapper import ActionMapper
 from ghmap.utils import load_json_file
 
-from .features import compute_user_features
+from .features import ActivityFeatureExtractor
 from .models import Predictor
 
 logger = logging.getLogger(__name__)
@@ -79,7 +79,8 @@ def predict_user_type(
         logger.debug("No activity sequences found for user %s", username)
         return ContributorResult(username, "Unknown", "-")
 
-    features_df = compute_user_features(username, activities)
+    feature_extractor = ActivityFeatureExtractor(username, activities)
+    features_df = feature_extractor.compute_features()
 
     user_type, confidence = predictor.predict(features_df)
 
