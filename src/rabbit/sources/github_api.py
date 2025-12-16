@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import Generator
+from collections.abc import Iterator
 
 import requests
 
@@ -73,7 +73,7 @@ class GitHubAPIExtractor:
         )
         return self._handle_api_response(contributor, response)
 
-    def query_events(self, contributor: str) -> Generator[list[dict]]:
+    def query_events(self, contributor: str) -> Iterator[list[dict]]:
         page = 1
         while page <= self.max_queries:
             try:

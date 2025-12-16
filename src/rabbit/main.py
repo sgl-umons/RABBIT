@@ -1,5 +1,5 @@
 import logging
-from typing import Generator
+from collections.abc import Iterator
 
 
 from .predictor.models import Predictor, ONNXPredictor
@@ -63,7 +63,7 @@ def run_rabbit(
     min_confidence: float = 1.0,
     max_queries: int = 3,
     _verbose: bool = False,
-) -> Generator[ContributorResult]:
+) -> Iterator[ContributorResult]:
     gh_api_client = GitHubAPIExtractor(api_key=api_key, max_queries=max_queries)
 
     try:
