@@ -8,32 +8,70 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  schedule:
+    - cron: "0 6 * * 1"  # At 06:00 on Mondays
+  workflow_dispatch:
+
 
 jobs:
-  build:
+
+  quality:
+    name: Check Quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: astral-sh/setup-uv@v5
+
+      - name: Install dependencies
+        run: uv sync --locked
+
+      - name: Check code style (Ruff)
+        run: uv run ruff check --output-format=github
+
+  tests-locked:
+    name: Run Tests (Locked)
+    needs: quality
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.11", "3.12", "3.13"]
+        python-version: [ "3.11", "3.12", "3.13" ]
     steps:
-        - uses: actions/checkout@v6
-        - name: Set up Python ${{ matrix.python-version }}
-          uses: actions/setup-python@v6
-          with:
-            python-version: ${{ matrix.python-version }}
-        - name: Install uv
-          uses: astral-sh/setup-uv@v7
-          with:
-            python-version: ${{ matrix.python-version }}
-        - name: Install project
-          run: uv sync --locked
-        - name: Check lockfile
-          run: uv lock --check
-        - name: Check code style with Ruff
-          run: uv run ruff check --output-format=github
-        - name: Run tests with pytest
-          run: uv run pytest --cov
+      - uses: actions/checkout@v6
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: ${{ matrix.python-version }}
 
+      - name: Install dependencies (locked)
+        run: uv sync --locked
 
+      - name: Run tests
+        run: uv run pytest --cov --cov-report=xml
 
+  tests-latest:
+    name: Tests (Latest Deps)
+    needs: quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+
+      - name: Install dependencies (Latest)
+        run: uv sync --upgrade
+
+      - name: Run tests against latest dependencies
+        run: uv run pytest
+
+  build-package:
+    name: Build & Verify Package
+    needs: tests-locked
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+
+      - name: Build wheel and sdist
+        run: uv build
+
+      - name: Verify build artifacts
+        run: ls -l dist/
