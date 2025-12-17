@@ -44,7 +44,7 @@ app = typer.Typer(
 
 
 class OutputFormat(str, Enum):
-    TERMINAL = "term"
+    TEXT = "text"
     CSV = "csv"
 
 
@@ -285,7 +285,7 @@ def cli(
             help="Format of the output.",
             rich_help_panel="Output",
         ),
-    ] = OutputFormat.TERMINAL,
+    ] = OutputFormat.TEXT,
     verbose: Annotated[
         int,
         typer.Option(

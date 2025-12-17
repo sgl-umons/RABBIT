@@ -680,12 +680,12 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "pandas-stubs", specifier = ">=2.3.3.251201" },
+    { name = "pandas-stubs", specifier = ">=2.3.3" },
     { name = "pytest", specifier = ">=8.4.2" },
     { name = "pytest-cov", specifier = ">=7.0.0" },
     { name = "responses", specifier = ">=0.25.8" },
     { name = "ruff", specifier = ">=0.14.7" },
-    { name = "types-requests", specifier = ">=2.32.4.20250913" },
+    { name = "types-requests", specifier = ">=2.32.4" },
 ]
 
 [[package]]
