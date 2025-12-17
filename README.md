@@ -1,177 +1,256 @@
-[![](https://img.shields.io/github/v/release/natarajan-chidambaram/RABBIT?label=Latest%20Release)](https://github.com/natarajan-chidambaram/RABBIT/releases/latest)
+<div align="center">
+
+
+<img src="https://github.com/sgl-umons/rabbit/blob/main/logo.jpeg?raw=true"
+       alt="RABBIT logo"
+       width="400" />
+
+[![Tests](https://github.com/MrRose765/RABBIT/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/MrRose765/RABBIT/actions/workflows/test.yml)
+[![Last commit](https://badgen.net/github/last-commit/sgl-umons/RABBIT)](https://github.com/sgl-umons/RABBIT/commits/)
+[![](https://img.shields.io/github/v/release/sgl-umons/RABBIT?label=Latest%20Release)](https://github.com/natarajan-chidambaram/RABBIT/releases/latest)
 [![SWH](https://archive.softwareheritage.org/badge/origin/https://github.com/natarajan-chidambaram/RABBIT/)](https://archive.softwareheritage.org/browse/origin/?origin_url=https://github.com/natarajan-chidambaram/RABBIT)
 
-# RABBIT
+# RABBIT - Activity-Based Bot Identification Tool
+</div>
 
-![alt text](https://github.com/natarajan-chidambaram/rabbit/blob/main/logo.jpeg?raw=true)
+---
 
-RABBIT is a recursive acronym for "RABBIT is an Activity-Based Bot Identification Tool".
-It is based on BIMBAS (stands for Bot Identification Model Based on Activity Sequences), a binary classification model to identify bot contributors based on their recent activities in GitHub.
-RABBIT is quite efficient, being able to predict thousands of accounts per hour, without reaching GitHub's imposed hourly API rate limit of 5,000 queries per hour for authorised users.
+## Overview
 
-The tool has been developed by Natarajan Chidambaram, a researcher at the [Software Engineering Lab](http://informatique.umons.ac.be/genlog/) of the [University of Mons](https://www.umons.ac.be) (Belgium) as part of his PhD research in the context of [DigitalWallonia4.AI research project ARIAC (grant number 2010235)](https://www.digitalwallonia.be/ia/) and [TRAIL](https://trail.ac/en/). 
+**RABBIT** is a machine-learning based tool designed to identify bot accounts among GitHub contributors .
+Unlike tools that rely on profile metadata, RABBIT analyzes **behavioral activity sequences** to compute 38 distinct features.
 
-This tool is developed as part of the research article titled: "A Bot Identification Model and Tool based on GitHub Activity Sequences" that is published at the Journal of Systems and Software, see [https://doi.org/10.1016/j.jss.2024.112287](https://doi.org/10.1016/j.jss.2024.112287).
-**Citation**: Natarajan Chidambaram, Alexandre Decan, and Tom Mens. ***A Bot Identification Model and Tool based on GitHub Activity Sequences.*** Journal of Systems and Software, vol. 221, 2025, doi: https://doi.org/10.1016/j.jss.2024.112287.
+RABBIT is developed by the **Software Engineering Lab (SGL)** at the **University of Mons (UMONS)**, Belgium.
 
-## How it works
-RABBIT accepts a GitHub contributor name (login name) and/or a text file of multiple login names (one name per line). It requires a GitHub API key if more than 15 queries are required to be made per hour.
-First, the tool checks whether the login name corresponds to a valid existing GitHub contributor and returns **Invalid** otherwise. Then, based on a call to the GitHub Users API, if the login name does not correspond to the type "User" (e.g., GitHub App is reported as "Bot" and organization account as "Organization") the tool directly determines the type as provided by GitHub Users API without even querying their events.
-For the contributors for which GitHub Users API provided their type as "User", BIMBAS will determine the type of contributor as **Bot**, **Human** or **Unknown** after the following steps.
-The first step consists of extracting the latest public events performed by the contributor in GitHub, using one or more queries to the GitHub Events API.
-If the number of events retrieved is less than the required threshold, the prediction will be **Unknown** due to a lack of data.
-If enough events are available to determine the type of contributor, the second step converts the events into activities (belonging to 24 different activity types). The third step computes the contributor's behavioural features.
-The fourth step executes **BIMBAS** and returns the type of contributor **Bot** or **Human** along with a confidence score between 0 and 1 (including both).
+**Why RABBIT?**
 
-**Note about misclassifications.** RABBIT is based on a machine learning classification model (BIMBAS) that is trained and validated on a ground-truth dataset, and cannot reach a precision and recall of 100%. 
-When running it on a set of GitHub contributors of your choice, it is therefore possible to have misclassifications (humans misclassified as bots, or vice versa). 
-If you encounter such situations while running the tool, please inform us about it, so that we can strive to further improve the accuracy of the classification model. A known reason for the presence of misclassifications is a too limited number of activities available for the contributor.
+* **Behavioral Analysis:** Classifies users based on interaction timing, repository switching patterns, and activity diversity, rather than just static account details.
+* **High Efficiency & Scalability:** RABBIT is designed for large-scale mining. Thanks to its incremental early-stopping mechanism, 
+it can predict **thousands of accounts per hour** without reaching GitHub's imposed API rate limit (5,000 queries/hour for authorized users).
+
+
+## Table of content
+
+- [Overview](#overview)
+- [Installation](#installation)
+- [CLI usage](#cli-usage)
+  - [Configuration (API Key)](#configuration-api-key)
+  - [Command Line Interface (CLI)](#command-line-interface-cli)
+- [Python Library usage](#python-library-usage)
+- [How it Works](#how-it-works)
+- [Citation](#citation)
+- [Contributions](#contributions)
+  - [Development environment setup](#development-environment-setup)
+- [Authors & Credits](#authors--credits)
+- [License](#license)
+
+---
 
 ## Installation
-In order not to conflict with already installed packages on your machine, it is recommended to use a virtual environment to install RABBIT. You can create a _Python virtual environment_ and install and run the tool in this environment. You can use any virtual environment of your choice. Below are the steps to install and create a virtual environment with **virtualenv**.
 
-Use the following command to install the virtual environment:
-```
-pip install virtualenv
-```
-Create a virtual environment in the folder where you want to place your files:
-```
-virtualenv <envname>
-```
-Start using the environment by:
-```
-source <envname>/bin/activate
-```
-After running this command your command line prompt will change to `(<envname>) ...` and now you can install RABBIT with the pip command.
-When you are finished running the tool, you can quit the environment by:
-```
-deactivate
-```
-To install RABBIT, execute the following command:
-```
-pip install git+https://github.com/natarajan-chidambaram/RABBIT
+RABBIT requires at least **Python 3.11** and can be used either as a command-line interface (CLI) tool or as a Python library.
+
+### Option A: Using [uv](https://docs.astral.sh/uv/) 
+This installs RABBIT in an isolated environment, keeping your system clean.
+```shell
+$ uv tool install rabbit # As a CLI tool
+$ uv add rabbit          # As a Python library (to use in your uv environment)
 ```
 
-Alternatively, `RABBIT` is available via [Nix](https://search.nixos.org/packages?channel=unstable&show=rabbit&from=0&size=50&sort=relevance&type=packages&query=rabbit).
-
-## Usage
-To execute **RABBIT** for many contributors (if more than 15 API queries are required per hour), you need to provide a *GitHub personal access token* (API key). You can follow the instructions [here](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token) to obtain such a token.
-
-You can execute the tool with all default parameters by running `rabbit <LOGIN_NAME>`. 
-
-Here is the list of parameters:
-
-`<LOGIN_NAME>`            **Any number of positional arguments specifying the login names of the contributors for which the type needs to be determined.**
-> Example: $ rabbit natarajan-chidambaram tommens
-
-`--input-file <path/to/loginnames.txt>`            **A text input file with the login names (one name per line) of the contributors for which the type needs to be determined.**
-> Example: $ rabbit --input-file logins.txt
-
-_Either the positional argument `<LOGIN_NAME>` or `--input-file` is mandatory. In case both are given, then the accounts given with `--input-file` will be processed after the accounts given as positional arguments have been processed._
-
-`--key <APIKEY>` 			**GitHub personal access token (key) to extract events from the GitHub Events API.**    
-_Note: APIKEY (--key) is mandatory if more than 15 queries are required to be made per hour_
-> Example: $ rabbit --input-file logins.txt --key token
-
-_You can obtain an access token as described earlier_
-
-`--min-events <MIN_EVENTS>` 		**Minimum number of events that are required to determine the type of contributor.**
-> Example: $ rabbit --input-file logins.txt --min-events 10
-
-_The default minimum number of events is 5._
-
-`--max-queries <NUM_QUERIES>` 		**Maximum number of queries that will be made to the GitHub Events API for each contributor. Reducing this value will lead to faster execution and less queries, at the expense of a reduced confidence in the results.**
-> Example: $ rabbit --input-file logins.txt --queries 2
-
-_The default number of queries is 3, allowed values are 1, 2 or 3._
-
-`--min-confidence <MIN_CONFIDENCE>` 		**Minimum confidence on contributor type to stop further querying. If the desired minimum confidence is reached, no further API calls will be made for the given contributor.**
-> Example: $ rabbit --input-file logins.txt --min-confidence 0.5
-
-_The default minimum confidence is 1.0_
-
-`--verbose`              		**Reports detailed information from the classification model such as the number of events, number of activities and values of the features that were used to determine the type of contributor.**
-> Example: $ rabbit --input-file logins.txt --verbose
-
-_The default value is False._
-
-`--json <FILE_NAME.json>`                	**Saves the result in JSON format.**
-> Example: $ rabbit --input-file logins.txt --json output.json
-
-`--csv <FILE_NAME.csv>`                		**Saves the result in comma-separated values (CSV) format.**
-> Example: $ rabbit --input-file logins.txt --csv types.csv
-
-`--incremental`              		**Method of reporting the results.** _If provided, the result for the contributor will be reported as soon as its type is determined. If not provided, the results will be reported after determining the type of all provided contributors._
-> Example: $ rabbit --input-file logins.txt --key token --incremental
-
-_The default value is False._
-
-## Examples of RABBIT output (for illustration purposes only)
-
-**With positional arguments:**
-
-GitHub 'User' accounts are classified as either Human or Bot using the classification model, and a confidence score between 0.0 and 1.0 is computed.
-```
-$ rabbit natarajan-chidambaram tensorflow-jenkins
-              contributor            type     confidence
-    natarajan-chidambaram           Human          0.984 
-       tensorflow-jenkins             Bot          0.878
+### Option B: Using pip in a virtual environment 
+It's recommended to use a virtual environment to avoid conflicts with other packages.
+```shell
+# Create and activate a virtual environment
+$ python3 -m venv rabbit-env
+$ source rabbit-env/bin/activate  # On Windows use `rabbit-env\Scripts\activate`
+# Install RABBIT
+$ pip install rabbit
 ```
 
-GitHub Apps interact and perform activities through a 'Bot' actor, which can be recognised in the contributor name by the `[bot]' suffix. They can be reported as Bot with 1.0 confidence based on their 'Bot' type in the GitHub Users API endpoint. (Because of the square brackets in the contributor name it needs to be surrounded by quotes.)
-```
-$ rabbit natarajan-chidambaram tensorflow-jenkins "github-actions[bot]"
-              contributor            type     confidence
-    natarajan-chidambaram           Human          0.984 
-       tensorflow-jenkins             Bot          0.878
-      github-actions[bot]             Bot            1.0
+### Option C: Using Nix (only for CLI tool)
+RABBIT is also available via [Nix](https://search.nixos.org/packages?channel=unstable&show=rabbit&from=0&size=50&sort=relevance&type=packages&query=rabbit)
+```shell
+$ nix-shell -p rabbit
 ```
 
-GitHub organization accounts are immediately retrieved with 1.0 confidence based on their 'Organization' type that can be retrieved from the GitHub Users API endpoint.
+## CLI Usage
+
+### Configuration (API Key)
+
+To execute **RABBIT** for many contributors (if more than 60 API queries are required per hour), 
+you need to provide a *GitHub personal access token* (API key). You can follow the instructions [here](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token) to obtain such a token.
+
+#### Option A: Environment Variable (Recommended)  
+Set the `GITHUB_TOKEN` environment variable to your GitHub personal access token.
+```shell
+$ export GITHUB_API_KEY=your_token_here # On Linux/Mac
+$ setx GITHUB_API_KEY "your_token_here" # On Windows
 ```
-$ rabbit tensorflow-jenkins observerly
-              contributor            type     confidence
-       tensorflow-jenkins             Bot          0.878
-               observerly    Organization            1.0
+You can also create a `.env` file in your working directory with the following content:
+```text
+GITHUB_API_KEY=your_token_here
 ```
 
-**With --input-file:** (Instead of providing each contributor name as a positional arguments, one can use an input text file containing all contributor names, one per line.)
-```
-$ rabbit --input-file logins.txt
-              contributor            type     confidence
-       tensorflow-jenkins             Bot          0.878
-           johnpbloch-bot             Bot          0.996
-      github-actions[bot]             Bot            1.0
+#### Option B: Command-Line Argument
+You can also provide the API key directly when running RABBIT using the `--key` argument.
+```shell
+$ rabbit --key your_token_here <other_arguments>
 ```
 
-**With combined use of positional arguments and --input-file:**
+### Command Line Interface (CLI)
+
+Run RABBIT command in your terminal:
+
+<details>
+<summary>Click to view <code>rabbit --help</code></summary>
+
+```shell
+$ rabbit --help
+Usage: rabbit [OPTIONS] [CONTRIBUTORS]...                                                                       
+                                                                                                                 
+Identify bot contributors based on their activity sequences in GitHub.                                          
+                                                                                                                 
+╭─ Arguments ───────────────────────────────────────────────────────────────────────────────────────────────────╮
+│   contributors      [CONTRIBUTORS]...  Login names of contributors to analyze.                                │
+╰───────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Options ─────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ --help          Show this message and exit.                                                                   │
+╰───────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Inputs ──────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ --input-file  -i      FILE  Path to a file containing login names (one per line).                             │
+╰───────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Configuration ───────────────────────────────────────────────────────────────────────────────────────────────╮
+│ --key             -k      TEXT                       GitHub API key (either in command line or in             │
+│                                                      GITHUB_API_KEY env variable).                            │
+│                                                      [env var: GITHUB_API_KEY]                                │
+│ --min-events              INTEGER RANGE [1<=x<=300]  Min number of events required. [default: 5]              │
+│ --min-confidence          FLOAT RANGE [0.0<=x<=1.0]  Confidence threshold to stop querying. [default: 1.0]    │
+│ --max-queries             INTEGER RANGE [1<=x<=3]    Max API queries per contributor. [default: 3]            │
+╰───────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Output ──────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ --features                      Display computed features for each contributor.                               │
+│ --format    -f      [text|csv]  Format of the output. [default: text]                                         │
+│ --verbose   -v      INTEGER     Increase verbosity level (can be used multiple times. -v or -vv).             │
+│                                 [default: 0]                                                                  │
+╰───────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ```
-$ rabbit natarajan-chidambaram --input-file logins.txt
-              contributor            type     confidence
-    natarajan-chidambaram           Human          0.984 
-       tensorflow-jenkins             Bot          0.878
-           johnpbloch-bot             Bot          0.796
-      github-actions[bot]             Bot            1.0
+</details>
+
+#### Examples
+
+**1 - Simple example**  
+You can provide the contributor login names as positional arguments or in an input file. (Can be combined.)
+```shell
+$ rabbit octocat renovate 
+CONTRIBUTOR                     TYPE        CONFIDENCE
+tensorflow-jenkins              Bot              0.838
+natarajan-chidambaram           Human            0.939
 ```
 
-**With --verbose:** (Verbose provides detailed information used by the classficiation model, such as the number ofevents, number of activities NA, and values of the features that were used to determine the type of contributor. Details of these features can be found in the accompanying research publication.)
+**2 - Export results to CSV file**
+```shell
+$ rabbit tensorflow-jenkins --input-file logins.txt --format csv > results.csv
+```
 
+**3 - Export with feature values**
+```shell
+$ rabbit --input-file logins.txt --features > results_with_features.txt
 ```
-$ rabbit --input-file logins.txt --verbose
-              contributor           type      confidence     events    NA      NT      NOR   ...   NAT_std      NAT_gini      NAT_IQR            
-       tensorflow-jenkins            Bot           0.878       160    160       4        2   ...    17.093         0.541       15.503             
-           johnpbloch-bot            Bot           0.796       300    300       3        1   ...    23.452         0.724       21.451             
-      github-actions[bot]            Bot             1.0         -      -       -        -   ...         -             -            -             
-                oberverly   Organization             1.0         -      -       -        -   ...         -             -            -      
-    natarajan-chidambaram          Human           0.984        74     74       5        1   ...    14.834         0.924       12.113           
+
+**4 - Increase verbosity level**  
+By default, only **critical** error messages are shown.
+```shell
+$ rabbit --input-file logins.txt -v  # Show info and warning messages
+$ rabbit --input-file logins.txt -vv # Show debug messages
 ```
+
+## Python Library usage
+
+---
+
+## How it works
+RABBIT follow a strict decision pipeline to classify a GitHub contributor that aims to minimize the number of API queries used.
+### The classification pipeline
+1.  **Validation & Existence Check**  
+    RABBIT first verifies if the login exists on GitHub.
+    * If the user does not exist: Returns `Invalid`.
+
+2.  **Metadata Filtering (Fast Check)**  
+    Before running complex analysis, RABBIT checks the account type provided by the GitHub Users API.
+    * If the type is `Organization` or `Bot` (e.g., GitHub Apps): It returns this type immediately without further analysis.
+    * If the type is `User`: It proceeds to the behavioral analysis.
+
+3.  **Event Extraction**  
+    RABBIT fetches the latest public events using the GitHub Events API.
+    * If the number of events is below the threshold (default: 5): Returns `Unknown` (Insufficient data).
+
+4.  **Feature Extraction**  
+    The retrieved events are converted into activity sequences (using the [ghmap](https://github.com/sgl-umons/ghmap) tool.   
+    RABBIT computes **38 behavioral features** covering volume, timing (inter-arrival time), and switching patterns (between repositories and activity types).
+
+5.  **Prediction (BIMBAS Model)**  
+    The computed features are fed into the machine learning model (Gradient Boosting).
+    * Returns: `Human` or `Bot`.
+    * Confidence Score: A value between 0.0 and 1.0 indicating the certainty of the prediction.
+      
+### ⚠️ Limitations & Accuracy
+
+RABBIT is based on a probabilistic machine learning model trained on a ground-truth dataset. While it achieves high accuracy, it is **not infallible**.
+
+* **Misclassifications:** It is possible for a Human to be classified as a Bot (or vice versa), especially if their activity pattern is highly repetitive or unusual.
+* **Data Scarcity:** Accounts with very few public events are harder to classify. The tool defaults to `Unknown` to avoid guessing when data is scarce.
+
+If you encounter a clear misclassification, please open an issue on GitHub so we can include it in future training sets to improve the model.
+
+---
+
+## Citation
+This tool was developed as part of the research work by Natarajan Chidambaram et al.   
+It is part of the research article title "A Bot Identification Model and Tool based on GitHub Activity Sequences"
+([doi](https://doi.org/10.1016/j.jss.2024.112287))
+
+If you use RABBIT in your research, please cite it using the following BibTeX entry:
+```bibtex
+@article{Chidambaram_RABBIT_A_tool,
+author = {Chidambaram, Natarajan and Mens, Tom and Decan, Alexandre},
+doi = {10.1145/3643991.3644877},
+title = {{RABBIT: A tool for identifying bot accounts based on their recent GitHub event history}}
+}
+```
+
+## Contributions
+Contributions to RABBIT are welcome! If you encounter any issues or have suggestions for improvements, 
+please open an issue or submit a pull request directly on GitHub.
+
+When contributing, please ensure that your code adheres to the existing coding style and includes appropriate tests.  
+Also, make sure to clearly document **why** the changes are necessary in the commit messages and pull request descriptions.
+
+### Development environment setup
+We use `uv` for managing the development environment.
+```shell
+# Clone the repository (must be your fork if you plan to contribute)
+$ git clone https://github.com/sgl-umons/RABBIT.git
+$ cd RABBIT
+
+# Install development dependencies
+$ uv sync --dev
+
+# Run tests
+$ uv run pytest
+# Lint the code
+$ uv run ruff check
+# Format the code
+$ uv run ruff format 
+```
+
+## Authors & Credits
+This tool is maintained by the **Software Engineering Lab (SGL)** of the **University of Mons (UMONS)**, Belgium.
+
+### Contributors:
+- [**Natarajan Chidambaram**](https://github.com/natarajan-chidambaram) (Original author)
+- [**Alexandre Decan**](https://github.com/alexandredecan)
+- [**Tom Mens**](https://github.com/tommens)
+- [**Cyril Moreau**](https://github.com/MrRose765)
 
 ## License
-This tool is distributed under [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)
-
-## Contributors
-[**Natarajan Chidambaram**](https://github.com/natarajan-chidambaram)
-
-[**Alexandre Decan**](https://github.com/alexandredecan)
-
-[**Tom Mens**](https://github.com/tommens)
+This tool is distributed under [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0). See the [LICENSE](LICENSE) file for more details.
