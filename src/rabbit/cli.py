@@ -26,6 +26,7 @@ custom_theme = Theme(
         "header": "bold underline",
         "login": "bold cyan",
         "Bot": "red",
+        "Organization": "yellow",
         "Human": "green",
         "Unknown": "dim",
         "Invalid": "dim yellow",
@@ -90,7 +91,7 @@ def _concat_all_contributors(
 class RabbitUI:
     """Manages incremental display with progress bar for CLI output."""
 
-    COLUMN_WIDTHS = {"login": 30, "type": 10, "confidence": 10}
+    COLUMN_WIDTHS = {"login": 30, "type": 12, "confidence": 10}
 
     def __init__(self, total: int, fmt: OutputFormat, display_features: bool = False):
         self.fmt = fmt

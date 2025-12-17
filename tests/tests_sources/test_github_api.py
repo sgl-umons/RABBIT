@@ -25,6 +25,24 @@ class TestGitHubAPIExtractor:
         assert GitHubAPIExtractor._check_events_left(events) is False
 
     @patch("rabbit.sources.github_api.requests.get")
+    def test_query_user_type(self, mock_get, extractor):
+        """Test if query_user_type returns correct user type."""
+
+        test_user = "testuser"
+
+        mock_response = Mock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {"type": "User"}
+        mock_get.return_value = mock_response
+
+        user_type = extractor.query_user_type(test_user)
+
+        assert user_type == "User"
+        mock_get.assert_called_once()
+        args, _ = mock_get.call_args
+        assert test_user in args[0]
+
+    @patch("rabbit.sources.github_api.requests.get")
     def test_query_events_without_api_key(self, mock_get):
         """Test if _query_event_page works without API key."""
         extractor_no_key = GitHubAPIExtractor(api_key=None)
@@ -116,6 +134,23 @@ class TestGitHubAPIExtractorAPIResponses(TestGitHubAPIExtractor):
 
         with pytest.raises(NotFoundError) as exc_info:
             next(extractor.query_events(test_user))
+
+        assert test_user in str(exc_info.value)
+
+    @patch("rabbit.sources.github_api.requests.get")
+    def test_handle_404_not_found_user_type(self, mock_get, extractor):
+        """Test if query_events() raises NotFoundError on 404."""
+        from rabbit.errors import NotFoundError
+
+        test_user = "nonexistentuser"
+
+        mock_response = Mock()
+        mock_response.status_code = 404
+        mock_response.reason = "Not Found"
+        mock_get.return_value = mock_response
+
+        with pytest.raises(NotFoundError) as exc_info:
+            extractor.query_user_type(test_user)
 
         assert test_user in str(exc_info.value)
 

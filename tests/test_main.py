@@ -20,6 +20,7 @@ class TestProcessSingleContributor:
         self, mock_predict, mock_gh_extractor, mock_predictor
     ):
         """Test _process_single_contributor returns correct type and confidence."""
+        mock_gh_extractor.query_user_type.return_value = "User"
 
         mock_gh_extractor.query_events.return_value = [
             [{"event": "test"}] * 10
@@ -40,11 +41,49 @@ class TestProcessSingleContributor:
 
     @patch("rabbit.main.ONNXPredictor")
     @patch("rabbit.main.GitHubAPIExtractor")
+    def test_process_contributor_organisation(self, mock_gh_extractor, mock_predictor):
+        """Test if _process_single_contributor return directly when user is an Organisation."""
+        mock_gh_extractor.query_user_type.return_value = "Organization"
+
+        result = _process_single_contributor(
+            "orguser",
+            mock_gh_extractor,
+            predictor=mock_predictor,
+            min_events=5,
+            min_confidence=1,
+        )
+
+        assert result.contributor == "orguser"
+        assert result.user_type == "Organization"
+        assert result.confidence == 1.0
+
+    @patch("rabbit.main.ONNXPredictor")
+    @patch("rabbit.main.GitHubAPIExtractor")
+    def test_process_contributor_app(self, mock_gh_extractor, mock_predictor):
+        """Test if _process_single_contributor return directly when user is an Organisation."""
+        mock_gh_extractor.query_user_type.return_value = "Bot"
+
+        result = _process_single_contributor(
+            "user[bot]",
+            mock_gh_extractor,
+            predictor=mock_predictor,
+            min_events=5,
+            min_confidence=1,
+        )
+
+        assert result.contributor == "user[bot]"
+        assert result.user_type == "Bot"
+        assert result.confidence == 1.0
+
+    @patch("rabbit.main.ONNXPredictor")
+    @patch("rabbit.main.GitHubAPIExtractor")
     @patch("rabbit.main.predict_user_type")
     def test_process_contributor_with_more_than_100_event_minimum(
         self, mock_predict, mock_gh_extractor, mock_predictor
     ):
         """Users can set the min_events parameter to more than 100, which requires multiple API calls."""
+        mock_gh_extractor.query_user_type.return_value = "User" # Ensure the prediction is attempted
+
         # Simulate 250 events returned in 3 pages
         mock_gh_extractor.query_events.return_value = [
             [{"event": "test"}] * 100,
@@ -71,6 +110,7 @@ class TestProcessSingleContributor:
         self, mock_gh_extractor, mock_predictor
     ):
         """Test _process_single_contributor returns 'Unknown' when events are below min_events."""
+        mock_gh_extractor.query_user_type.return_value = "User"
 
         mock_gh_extractor.query_events.return_value = [
             {}
@@ -96,7 +136,7 @@ class TestProcessSingleContributor:
         """Test _process_single_contributor handles NotFoundError correctly."""
         from rabbit.errors import NotFoundError
 
-        mock_gh_extractor.query_events.side_effect = NotFoundError("User not found")
+        mock_gh_extractor.query_user_type.side_effect = NotFoundError("User not found")
 
         result = _process_single_contributor(
             "invaliduser",
@@ -117,6 +157,7 @@ class TestProcessSingleContributor:
         self, mock_predict, mock_gh_extractor, mock_predictor
     ):
         """Test _process_single_contributor stops early when min_confidence is reached."""
+        mock_gh_extractor.query_user_type.return_value = "User"
 
         # Simulate events returned in pages
         mock_gh_extractor.query_events.return_value = [
@@ -154,6 +195,7 @@ class TestProcessSingleContributor:
         from rabbit.errors import RabbitErrors
 
         mock_gh_extractor.query_events.side_effect = RabbitErrors("API error")
+        mock_gh_extractor.query_user_type.return_value = "User"
 
         with pytest.raises(RabbitErrors):
             _process_single_contributor(
@@ -172,6 +214,7 @@ class TestProcessSingleContributor:
         """Test _process_single_contributor forwards unexpected exceptions."""
 
         mock_gh_extractor.query_events.side_effect = Exception("Unexpected error")
+        mock_gh_extractor.query_user_type.return_value = "User"
 
         with pytest.raises(RabbitErrors):
             _process_single_contributor(

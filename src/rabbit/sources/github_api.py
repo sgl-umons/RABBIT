@@ -101,6 +101,29 @@ class GitHubAPIExtractor:
         )
         return self._handle_api_response(contributor, response)
 
+    @retry(max_attempts=3, delay=10, backoff=2.5)
+    def query_user_type(self, contributor: str) -> str:
+        """
+        Fetch GitHub user data for a contributor to determine their type.
+
+        This method queries the GitHub /users/{contributor} endpoint to retrieve
+        the type of the contributor according to GitHub (Bot, User or Organization).
+
+        Args:
+            contributor: GitHub username to query.
+
+        Returns:
+            The type of the contributor ("Bot", "User", "Organization").
+        """
+        query = f"{self.query_root}/users/{contributor}"
+        response = requests.get(
+            query,
+            headers={"Authorization": f"token {self.api_key}"} if self.api_key else {},
+            timeout=30,
+        )
+        user_data = self._handle_api_response(contributor, response)
+        return user_data.get("type", "Unknown")
+
     def query_events(self, contributor: str) -> Iterator[list[dict]]:
         """
         Fetch GitHub events for a contributor, yielding page-by-page.

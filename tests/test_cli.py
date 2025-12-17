@@ -81,6 +81,13 @@ class TestIntegration:
             status=200,
         )
 
+        responses.add(
+            responses.GET,
+            f"https://api.github.com/users/{test_user}",
+            json={"type": "User"},
+            status=200,
+        )
+
         with patch("sys.stdout.isatty", return_value=False):
             result = runner.invoke(
                 app,
