@@ -38,8 +38,7 @@ console_err = Console(
 )
 
 app = typer.Typer(
-    help="RABBIT is an Activity Based Bot Identification Tool that identifies bots "
-    "based on their recent activities in GitHub",
+    help="RABBIT is an Activity Based Bot Identification Tool that identifies bots.",
     add_completion=False,
 )
 
@@ -52,7 +51,7 @@ class OutputFormat(str, Enum):
 def setup_logger(verbose: int):
     levels = [
         logging.ERROR,  # 0 - default
-        logging.INFO,   # 1 - -v
+        logging.INFO,  # 1 - -v
         logging.DEBUG,  # 2 - -vv
     ]
 
@@ -212,7 +211,7 @@ def cli(
     contributors: Annotated[
         list[str] | None,
         typer.Argument(
-            help="Login names of contributors to analyze.",
+            help="Login names of contributors to analyze. (Ex: 'user1 user2 ...')",
             show_default=False,
         ),
     ] = None,
@@ -297,8 +296,12 @@ def cli(
         ),
     ] = 0,
 ):
-    """Identify bot contributors based on their activity sequences in GitHub."""
+    """
+    RABBIT is an Activity Based Bot Identification Tool that identifies bots
+    based on their recent activities in GitHub.
 
+    The simplest way to use RABBIT is to provide a list of GitHub usernames (e.g. rabbit user1 user2 ...)
+    """
     setup_logger(verbose)
     logger = logging.getLogger("rabbit.cli")
 
