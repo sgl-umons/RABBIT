@@ -51,8 +51,8 @@ class OutputFormat(str, Enum):
 
 def setup_logger(verbose: int):
     levels = [
-        logging.CRITICAL,  # 0 - default
-        logging.INFO,  # 1 - -v
+        logging.ERROR,  # 0 - default
+        logging.INFO,   # 1 - -v
         logging.DEBUG,  # 2 - -vv
     ]
 
@@ -84,7 +84,6 @@ def _concat_all_contributors(
         ]
         contributors.extend(file_contributors)
 
-    # Remove duplicates while preserving order
     return list(dict.fromkeys(contributors))
 
 
@@ -305,7 +304,7 @@ def cli(
 
     contributors = _concat_all_contributors(contributors, input_file)
     if len(contributors) == 0:
-        logger.error(
+        logger.critical(
             "No contributors provided. Provide at least one contributor or an input file. (--help for more info)"
         )
         raise typer.Exit(code=1)
@@ -326,8 +325,7 @@ def cli(
                 ui.advance()
 
     except RetryableError as e:
-        logger.error(f"API rate limit or network issue: {e}")
-        logger.info("Please try again later or provide a GitHub API key.")
+        logger.error(f"Network issue occurred: {e}")
         raise typer.Exit(code=2)
     except Exception as e:
         logger.critical(
