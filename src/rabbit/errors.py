@@ -19,14 +19,22 @@ class RabbitErrors(Exception):
 class RateLimitExceededError(RabbitErrors):
     """Error raised when the API rate limit is exceeded."""
 
-    def __init__(self, reset_time: str):
+    def __init__(self, reset_time: str | None = None):
         self.reset_time = reset_time
-        super().__init__(f"API rate limit exceeded. Reset at {reset_time}.")
+        message = "API rate limit exceeded."
+        if reset_time:
+            message += f" Reset at {reset_time}."
+        else:
+            message += " To increase your rate limit, consider using an authenticated API request."
+        super().__init__(message)
 
     def wait_reset(self):
         """Wait until the reset time for rate limiting."""
         from datetime import datetime
         import time
+
+        if not self.reset_time:
+            return
 
         reset_time = datetime.strptime(self.reset_time, "%Y-%m-%d %H:%M:%S")
         time_diff = (reset_time - datetime.now()).total_seconds()

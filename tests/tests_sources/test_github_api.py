@@ -196,6 +196,25 @@ class TestGitHubAPIExtractorAPIResponses(TestGitHubAPIExtractor):
         assert mock_sleep.call_count == 1
         assert mock_get.call_count == 2
 
+    def test_handle_403_rate_limit_no_api_key(self, extractor):
+        """Test if RateLimitExceededError is raised on RateLimit errors without API key."""
+        from rabbit.errors import RateLimitExceededError
+
+        extractor_no_key = GitHubAPIExtractor(api_key=None)
+
+        mock_response = Mock()
+        mock_response.status_code = 403
+        mock_response.reason = "Rate limit exceeded"
+        mock_response.headers.get = lambda key: None
+
+        with patch(
+            "rabbit.sources.github_api.requests.get", return_value=mock_response
+        ):
+            with pytest.raises(RateLimitExceededError) as exc_info:
+                next(extractor_no_key.query_events("testuser"))
+
+        assert "rate limit" in str(exc_info.value).lower()
+
     @pytest.mark.parametrize(
         "status_code,reason,error_type",
         [

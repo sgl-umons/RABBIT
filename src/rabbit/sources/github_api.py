@@ -54,8 +54,7 @@ class GitHubAPIExtractor:
         """Return True if there might be more events to fetch."""
         return len(events) == 100
 
-    @staticmethod
-    def _handle_api_response(contributor, response):
+    def _handle_api_response(self, contributor, response):
         match response.status_code:
             case 200:  # OK
                 logger.debug(
@@ -78,6 +77,13 @@ class GitHubAPIExtractor:
                         "%Y-%m-%d %H:%M:%S"
                     )
                     raise RateLimitExceededError(reset_time)
+                if (
+                    not self.api_key
+                    and response.reason
+                    and "rate limit" in response.reason.lower()
+                ):
+                    # If no API key is provided, we cannot determine reset time
+                    raise RateLimitExceededError(reset_time=None)
                 raise RetryableError(response.reason)
 
             case 404:  # Not Found
@@ -167,4 +173,6 @@ class GitHubAPIExtractor:
                     break
                 page += 1
             except RateLimitExceededError as rate_limit_e:
+                if not rate_limit_e.reset_time:
+                    raise
                 rate_limit_e.wait_reset()
