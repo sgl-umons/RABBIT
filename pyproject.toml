@@ -5,7 +5,7 @@ license = {text = "Apache-2.0"}
 description = "GitHub bot identification tool based on activity sequences"
 readme = {file = "README.md", content-type = "text/markdown"}
 urls = {Homepage = "https://github.com/sgl-umons/RABBIT"}
-requires-python = ">=3.11"
+requires-python = ">=3.11, <3.14"
 dependencies = [
     "ghmap>=1.0.6, <2.0.0",
     "numpy>=2.3.5, <3.0.0",
