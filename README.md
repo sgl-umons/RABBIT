@@ -69,7 +69,7 @@ It's recommended to use a virtual environment to avoid conflicts with other pack
 ```shell
 # Create and activate a virtual environment
 $ python3 -m venv rabbit-env
-$ source rabbit-env/bin/activate  # On Windows use `rabbit-env\Scripts\activate
+$ source rabbit-env/bin/activate  # On Windows use `rabbit-env\Scripts\activate`
 # Install RABBIT
 $ pip install rabbit
 ```
@@ -82,11 +82,12 @@ $ nix-shell -p rabbit
 
 ### Configuration (API Key)
 
-To execute **RABBIT** for many contributors
-you need to provide a *GitHub personal access token* (API key). 
+To execute **RABBIT** for many contributors, you need to provide a
+*GitHub personal access token* (API key). 
 You can follow the instructions [here](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token) to obtain such a token.  
-Without an API key, RABBIT will be limited to **60 API queries per hour** and the research will stop once the limit is reached
-instead of waiting for the limit to reset.
+Without an API key, RABBIT will be limited to **60 API queries per hour** and
+API queries will stop once the limit is reached instead of waiting for the
+limit to reset.
 
 #### Option A: Environment Variable (Recommended)  
 Set the `GITHUB_TOKEN` environment variable to your GitHub personal access token.
@@ -109,7 +110,7 @@ $ rabbit --key your_token_here <other_arguments>
 By default, RABBIT allows you to provide a list of GitHub contributor login names. 
 You can then provide different options to customize the analysis. The different available commands are:
 
-```terminaloutput
+```shell
 $ rabbit --help
 Usage: rabbit [OPTIONS] [CONTRIBUTORS]...                                                                       
                                                                                                                  
@@ -118,7 +119,7 @@ RABBIT is an Activity Based Bot Identification Tool that identifies bots based o
 The simplest way to use RABBIT is to provide a list of GitHub usernames (e.g. rabbit user1 user2 ...)                                    
                                                                                                                  
 ╭─ Arguments ───────────────────────────────────────────────────────────────────────────────────────────────────╮
-│   contributors      [CONTRIBUTORS]...  Login names of contributors to analyze.                                │
+│   contributors      [CONTRIBUTORS]...  Login names of contributors to analyze (Ex: 'user1 user2 ...').        │
 ╰───────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ╭─ Options ─────────────────────────────────────────────────────────────────────────────────────────────────────╮
 │ --help          Show this message and exit.                                                                   │
@@ -184,7 +185,7 @@ $ rabbit --input-file logins.txt -vv # Show debug messages
 > RABBIT requires at least **Python 3.11**.
 
 #### Method A: Install in a project using uv
-If you project does not already use `uv`, you can initialize it first by running `uv init` in your project directory.
+If your project does not already use `uv`, you can initialize it first by running `uv init` in your project directory.
 More information can be found in the [official documentation](https://docs.astral.sh/uv/guides/projects/#pyprojecttoml)
 
 Then, you can add RABBIT as a dependency:
@@ -197,7 +198,7 @@ If your project does not already have a virtual environment, it's recommended to
 ```shell
 # Create and activate a virtual environment
 $ python3 -m venv rabbit-env
-$ source rabbit-env/bin/activate  # On Windows use `rabbit-env\Scripts\activate
+$ source rabbit-env/bin/activate  # On Windows use `rabbit-env\Scripts\activate`
 # Install RABBIT
 $ pip install rabbit
 ```
