@@ -79,8 +79,11 @@ $ nix-shell -p rabbit
 
 ### Configuration (API Key)
 
-To execute **RABBIT** for many contributors (if more than 60 API queries are required per hour), 
-you need to provide a *GitHub personal access token* (API key). You can follow the instructions [here](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token) to obtain such a token.
+To execute **RABBIT** for many contributors
+you need to provide a *GitHub personal access token* (API key). 
+You can follow the instructions [here](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token) to obtain such a token.  
+Without an API key, RABBIT will be limited to **60 API queries per hour** and the research will stop once the limit is reached
+instead of waiting for the limit to reset.
 
 #### Option A: Environment Variable (Recommended)  
 Set the `GITHUB_TOKEN` environment variable to your GitHub personal access token.
@@ -160,7 +163,7 @@ $ rabbit --input-file logins.txt --features > results_with_features.txt
 ```
 
 **4 - Increase verbosity level**  
-By default, only **critical** error messages are shown.
+By default, only **Error** messages are shown.
 ```shell
 $ rabbit --input-file logins.txt -v  # Show info and warning messages
 $ rabbit --input-file logins.txt -vv # Show debug messages
