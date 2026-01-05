@@ -10,6 +10,7 @@
 [![](https://img.shields.io/github/v/release/sgl-umons/RABBIT?label=Latest%20Release)](https://github.com/natarajan-chidambaram/RABBIT/releases/latest)
 [![SWH](https://archive.softwareheritage.org/badge/origin/https://github.com/natarajan-chidambaram/RABBIT/)](https://archive.softwareheritage.org/browse/origin/?origin_url=https://github.com/natarajan-chidambaram/RABBIT)
 
+[![Python Version](https://img.shields.io/badge/python-3.11%20|%203.12%20|%203.13-blue)](https://pypi.org/project/rabbit/)
 # RABBIT - Activity-Based Bot Identification Tool
 </div>
 
@@ -17,10 +18,10 @@
 
 ## Overview
 
-**RABBIT** is a machine-learning based tool designed to identify bot accounts among GitHub contributors .
+**RABBIT** is a machine-learning based tool designed to identify bot accounts among GitHub contributors.
 Unlike tools that rely on profile metadata, RABBIT analyzes **behavioral activity sequences** to compute 38 distinct features.
 
-RABBIT is developed by the **Software Engineering Lab (SGL)** at the **University of Mons (UMONS)**, Belgium.
+RABBIT is developed by the **[Software Engineering Lab](https://informatique-umons.be/genlog/) (SGL)** at the **[University of Mons](https://www.umons.ac.be) (UMONS)**, Belgium.
 
 **Why RABBIT?**
 
@@ -32,11 +33,13 @@ it can predict **thousands of accounts per hour** without reaching GitHub's impo
 ## Table of content
 
 - [Overview](#overview)
-- [Installation](#installation)
 - [CLI usage](#cli-usage)
+  - [Installation](#installation)
   - [Configuration (API Key)](#configuration-api-key)
-  - [Command Line Interface (CLI)](#command-line-interface-cli)
+  - [Available Commands](#available-commands)
+  - [Examples](#examples)
 - [Python Library usage](#python-library-usage)
+  - [Installation](#installation-1)
   - [Default usage](#default-usage)
   - [Offline usage](#offline-usage-without-api-calls)
 - [How it Works](#how-it-works)
@@ -48,19 +51,21 @@ it can predict **thousands of accounts per hour** without reaching GitHub's impo
 
 ---
 
-## Installation
+## CLI Usage
 
-RABBIT requires at least **Python 3.11** and can be used either as a command-line interface (CLI) tool or as a Python library.
+### Installation
 
-### Option A: Using [uv](https://docs.astral.sh/uv/) 
-This installs RABBIT in an isolated environment, keeping your system clean.
+> RABBIT requires at least **Python 3.11**.
+
+#### Option A: Using [uv](https://docs.astral.sh/uv/) 
+This installs RABBIT in an isolated environment, keeping your system clean.  
+You can find more details on how to install `uv` in its [official documentation](https://docs.astral.sh/uv/getting-started/installation).
 ```shell
-$ uv tool install rabbit # As a CLI tool
-$ uv add rabbit          # As a Python library (to use in your uv environment)
+$ uv tool install rabbit
 ```
 
-### Option B: Using pip in a virtual environment 
-It's recommended to use a virtual environment to avoid conflicts with other packages.
+#### Option B: Using pip in a virtual environment
+It's recommended to use a virtual environment to avoid conflicts with other packages on your system.
 ```shell
 # Create and activate a virtual environment
 $ python3 -m venv rabbit-env
@@ -69,18 +74,20 @@ $ source rabbit-env/bin/activate  # On Windows use `rabbit-env\Scripts\activate`
 $ pip install rabbit
 ```
 
-### Option C: Using Nix (only for CLI tool)
+#### Option C: Using Nix
 RABBIT is also available via [Nix](https://search.nixos.org/packages?channel=unstable&show=rabbit&from=0&size=50&sort=relevance&type=packages&query=rabbit)
 ```shell
 $ nix-shell -p rabbit
 ```
 
-## CLI Usage
-
 ### Configuration (API Key)
 
-To execute **RABBIT** for many contributors (if more than 60 API queries are required per hour), 
-you need to provide a *GitHub personal access token* (API key). You can follow the instructions [here](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token) to obtain such a token.
+To execute **RABBIT** for many contributors, you need to provide a
+*GitHub personal access token* (API key). 
+You can follow the instructions [here](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token) to obtain such a token.  
+Without an API key, RABBIT will be limited to **60 API queries per hour** and
+API queries will stop once the limit is reached instead of waiting for the
+limit to reset.
 
 #### Option A: Environment Variable (Recommended)  
 Set the `GITHUB_TOKEN` environment variable to your GitHub personal access token.
@@ -99,21 +106,20 @@ You can also provide the API key directly when running RABBIT using the `--key` 
 $ rabbit --key your_token_here <other_arguments>
 ```
 
-### Command Line Interface (CLI)
-
-Run RABBIT command in your terminal:
-
-<details>
-<summary>Click to view <code>rabbit --help</code></summary>
+### Available Commands
+By default, RABBIT allows you to provide a list of GitHub contributor login names. 
+You can then provide different options to customize the analysis. The different available commands are:
 
 ```shell
 $ rabbit --help
 Usage: rabbit [OPTIONS] [CONTRIBUTORS]...                                                                       
                                                                                                                  
-Identify bot contributors based on their activity sequences in GitHub.                                          
+RABBIT is an Activity Based Bot Identification Tool that identifies bots based on their recent activities in GitHub.                                                                                                                                                                                               
+                                                                                                                                                                                                                                                                                                                    
+The simplest way to use RABBIT is to provide a list of GitHub usernames (e.g. rabbit user1 user2 ...)                                    
                                                                                                                  
 ╭─ Arguments ───────────────────────────────────────────────────────────────────────────────────────────────────╮
-│   contributors      [CONTRIBUTORS]...  Login names of contributors to analyze.                                │
+│   contributors      [CONTRIBUTORS]...  Login names of contributors to analyze (Ex: 'user1 user2 ...').        │
 ╰───────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ╭─ Options ─────────────────────────────────────────────────────────────────────────────────────────────────────╮
 │ --help          Show this message and exit.                                                                   │
@@ -136,17 +142,21 @@ Identify bot contributors based on their activity sequences in GitHub.
 │                                 [default: 0]                                                                  │
 ╰───────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ```
-</details>
 
-#### Examples
+
+### Examples
 
 **1 - Simple example**  
 You can provide the contributor login names as positional arguments or in an input file. (Can be combined.)
 ```shell
-$ rabbit octocat renovate 
-CONTRIBUTOR                     TYPE        CONFIDENCE
-tensorflow-jenkins              Bot              0.838
-natarajan-chidambaram           Human            0.939
+$ rabbit natarajan-chidambaram "github-actions[bot]" tensorflow-jenkins astral-sh inactiveUser notFoundUser
+CONTRIBUTOR                     TYPE          CONFIDENCE
+natarajan-chidambaram           Human               0.96
+github-actions[bot]             Bot                  1.0
+tensorflow-jenkins              Bot                0.838
+astral-sh                       Organization         1.0
+inactiveUser                    Unknown                -
+notFoundUser                    Invalid                -
 ```
 
 **2 - Export results to CSV file**
@@ -160,13 +170,38 @@ $ rabbit --input-file logins.txt --features > results_with_features.txt
 ```
 
 **4 - Increase verbosity level**  
-By default, only **critical** error messages are shown.
+By default, only **Error** messages are shown.
 ```shell
 $ rabbit --input-file logins.txt -v  # Show info and warning messages
 $ rabbit --input-file logins.txt -vv # Show debug messages
 ```
 
+---
+
 ## Python Library usage
+
+### Installation
+
+> RABBIT requires at least **Python 3.11**.
+
+#### Method A: Install in a project using uv
+If your project does not already use `uv`, you can initialize it first by running `uv init` in your project directory.
+More information can be found in the [official documentation](https://docs.astral.sh/uv/guides/projects/#pyprojecttoml)
+
+Then, you can add RABBIT as a dependency:
+```shell
+$ uv add rabbit
+```
+
+#### Method B: Install using pip in a virtual environment
+If your project does not already have a virtual environment, it's recommended to create one to avoid conflicts with other packages on your system.
+```shell
+# Create and activate a virtual environment
+$ python3 -m venv rabbit-env
+$ source rabbit-env/bin/activate  # On Windows use `rabbit-env\Scripts\activate`
+# Install RABBIT
+$ pip install rabbit
+```
 
 ### Default usage
 The main function to use is `run_rabbit` which is an iterator yielding result for each contributor one by one.
@@ -223,6 +258,8 @@ for contributor, user_events in events.items():
 # MrRose765: Human (Confidence: 0.987)
 # testuser: Bot (Confidence: 0.912)
 ```
+
+---
 
 ## How it works
 RABBIT follow a strict decision pipeline to classify a GitHub contributor that aims to minimize the number of API queries used.

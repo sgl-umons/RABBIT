@@ -25,7 +25,9 @@ def _process_single_contributor(
 
         github_type = gh_api_client.query_user_type(contributor)
         if github_type != "User":
-            logger.debug(f"Contributor {contributor} is of type {github_type}. Skipping prediction.")
+            logger.debug(
+                f"Contributor {contributor} is of type {github_type}. Skipping prediction."
+            )
             return ContributorResult(contributor, github_type, 1.0)
 
         for event_batch in gh_api_client.query_events(contributor):

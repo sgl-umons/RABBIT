@@ -82,7 +82,9 @@ class TestProcessSingleContributor:
         self, mock_predict, mock_gh_extractor, mock_predictor
     ):
         """Users can set the min_events parameter to more than 100, which requires multiple API calls."""
-        mock_gh_extractor.query_user_type.return_value = "User" # Ensure the prediction is attempted
+        mock_gh_extractor.query_user_type.return_value = (
+            "User"  # Ensure the prediction is attempted
+        )
 
         # Simulate 250 events returned in 3 pages
         mock_gh_extractor.query_events.return_value = [

@@ -38,8 +38,7 @@ console_err = Console(
 )
 
 app = typer.Typer(
-    help="RABBIT is an Activity Based Bot Identification Tool that identifies bots "
-    "based on their recent activities in GitHub",
+    help="RABBIT is an Activity Based Bot Identification Tool that identifies bots.",
     add_completion=False,
 )
 
@@ -84,7 +83,6 @@ def _concat_all_contributors(
         ]
         contributors.extend(file_contributors)
 
-    # Remove duplicates while preserving order
     return list(dict.fromkeys(contributors))
 
 
@@ -213,7 +211,7 @@ def cli(
     contributors: Annotated[
         list[str] | None,
         typer.Argument(
-            help="Login names of contributors to analyze.",
+            help="Login names of contributors to analyze. (Ex: 'user1 user2 ...')",
             show_default=False,
         ),
     ] = None,
@@ -298,14 +296,18 @@ def cli(
         ),
     ] = 0,
 ):
-    """Identify bot contributors based on their activity sequences in GitHub."""
+    """
+    RABBIT is an Activity Based Bot Identification Tool that identifies bots
+    based on their recent activities in GitHub.
 
+    The simplest way to use RABBIT is to provide a list of GitHub usernames (e.g. rabbit user1 user2 ...)
+    """
     setup_logger(verbose)
     logger = logging.getLogger("rabbit.cli")
 
     contributors = _concat_all_contributors(contributors, input_file)
     if len(contributors) == 0:
-        logger.error(
+        logger.critical(
             "No contributors provided. Provide at least one contributor or an input file. (--help for more info)"
         )
         raise typer.Exit(code=1)
@@ -326,8 +328,7 @@ def cli(
                 ui.advance()
 
     except RetryableError as e:
-        logger.error(f"API rate limit or network issue: {e}")
-        logger.info("Please try again later or provide a GitHub API key.")
+        logger.error(f"Network issue occurred: {e}")
         raise typer.Exit(code=2)
     except Exception as e:
         logger.critical(
