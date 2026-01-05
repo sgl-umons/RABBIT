@@ -18,10 +18,10 @@
 
 ## Overview
 
-**RABBIT** is a machine-learning based tool designed to identify bot accounts among GitHub contributors .
+**RABBIT** is a machine-learning based tool designed to identify bot accounts among GitHub contributors.
 Unlike tools that rely on profile metadata, RABBIT analyzes **behavioral activity sequences** to compute 38 distinct features.
 
-RABBIT is developed by the **Software Engineering Lab (SGL)** at the **University of Mons (UMONS)**, Belgium.
+RABBIT is developed by the **[Software Engineering Lab](https://informatique-umons.be/genlog/) (SGL)** at the **[University of Mons](https://www.umons.ac.be) (UMONS)**, Belgium.
 
 **Why RABBIT?**
 
@@ -149,7 +149,7 @@ The simplest way to use RABBIT is to provide a list of GitHub usernames (e.g. ra
 **1 - Simple example**  
 You can provide the contributor login names as positional arguments or in an input file. (Can be combined.)
 ```shell
-$ rabbit natarajan-chidambaram tommens "github-actions[bot]" tensorflow-jenkins astral-sh inactiveUser notFoundUser
+$ rabbit natarajan-chidambaram "github-actions[bot]" tensorflow-jenkins astral-sh inactiveUser notFoundUser
 CONTRIBUTOR                     TYPE          CONFIDENCE
 natarajan-chidambaram           Human               0.96
 github-actions[bot]             Bot                  1.0
