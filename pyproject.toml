@@ -1,13 +1,13 @@
 [project]
 name = "rabbit"
-version = "3.0.0rc4"
+version = "3.0.0rc5"
 license = {text = "Apache-2.0"}
 description = "GitHub bot identification tool based on activity sequences"
 readme = {file = "README.md", content-type = "text/markdown"}
 urls = {Homepage = "https://github.com/sgl-umons/RABBIT"}
 requires-python = ">=3.11, <3.14"
 dependencies = [
-    "ghmap>=1.0.6, <2.0.0",
+    "ghmap>=2.0.2",
     "numpy>=2.3.5, <3.0.0",
     "onnxruntime>=1.23.2, <2.0.0",
     "pandas>=2.3.3, <3.0.0",
@@ -25,7 +25,7 @@ rabbit = "rabbit.cli:app"
 
 [dependency-groups]
 dev = [
-    "pandas-stubs>=2.3.3",
+    "pandas-stubs>=2.3.3, <3.0.0.260204",
     "pytest>=8.4.2",
     "pytest-cov>=7.0.0",
     "responses>=0.25.8",

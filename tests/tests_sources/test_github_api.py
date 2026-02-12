@@ -185,8 +185,8 @@ class TestGitHubAPIExtractorAPIResponses(TestGitHubAPIExtractor):
         future_time = int((datetime.now() + timedelta(hours=1)).timestamp())
         mock_fail = Mock()
         mock_fail.status_code = 429
-        mock_fail.headers.get = (
-            lambda key: 0
+        mock_fail.headers.get = lambda key: (
+            0
             if key == "x-ratelimit-remaining"
             else (str(future_time) if key == "x-ratelimit-reset" else None)
         )

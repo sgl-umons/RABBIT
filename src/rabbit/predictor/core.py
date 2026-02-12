@@ -1,12 +1,10 @@
-import contextlib
-import io
 from dataclasses import dataclass, field
-from importlib.resources import files
 import logging
 
 from ghmap.mapping.activity_mapper import ActivityMapper
 from ghmap.mapping.action_mapper import ActionMapper
 from ghmap.utils import load_json_file
+from ghmap.cli import find_valid_mappings, split_events_by_mapping_versions
 
 from .features import ActivityFeatureExtractor
 from .models import Predictor
@@ -50,36 +48,31 @@ def compute_activity_sequences(events: list[dict]) -> list[dict]:
     Returns:
         list: List[dict] of activity sequences computed using ghmap
     """
-    # Suppress ghmap stdout output
-    stdout_capture = io.StringIO()
-    with contextlib.redirect_stdout(stdout_capture):
-        action_mapping_file = files("ghmap").joinpath("config", "event_to_action.json")
-        action_mapping_json = load_json_file(action_mapping_file)
-        action_mapper = ActionMapper(action_mapping_json, progress_bar=False)
-        actions = action_mapper.map(events)
-        logger.debug(f"Mapped {len(events)} events to {len(actions)} actions.")
 
-        activity_mapping_file = files("ghmap").joinpath(
-            "config", "action_to_activity.json"
-        )
-        action_mapping_json = load_json_file(activity_mapping_file)
-        activity_mapper = ActivityMapper(action_mapping_json, progress_bar=False)
+    events_by_period = split_events_by_mapping_versions(events, "github")
+
+    all_activities = []
+
+    for (period_start, _period_end), period_events in events_by_period.items():
+        # Find valid mappings for this time period
+        valid_mappings = find_valid_mappings("github", period_start)
+
+        if not valid_mappings["action"] or not valid_mappings["activity"]:
+            continue
+
+        # Map events -> actions
+        action_mapping = load_json_file(valid_mappings["action"])
+        action_mapper = ActionMapper(action_mapping, progress_bar=False)
+        actions = action_mapper.map(period_events, "flexible")
+
+        # Map actions -> activities
+        activity_mapping = load_json_file(valid_mappings["activity"])
+        activity_mapper = ActivityMapper(activity_mapping, progress_bar=False)
         activities = activity_mapper.map(actions)
-        logger.debug(f"Mapped {len(actions)} actions to {len(activities)} activities.")
-    captured_output = stdout_capture.getvalue()
-    if captured_output:
-        # Filter output to keep only relevant debug info ("Warning: unused actions" and {actions})
-        text = ""
-        for line in captured_output.splitlines():
-            if "Warning: Unused actions" in line:
-                # Keep only the part of the line after the warning
-                line = line[line.index("Warning: Unused actions") :]
-                text += line + "\n"
 
-        if text:
-            logger.debug("ghmap output: %s", text.strip())
+        all_activities.extend(activities)
 
-    return activities
+    return all_activities
 
 
 def predict_user_type(
