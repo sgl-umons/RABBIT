@@ -12,10 +12,12 @@
 
 
 [![Python Version](https://img.shields.io/badge/python-3.11%20|%203.12%20|%203.13-blue)](https://pypi.org/project/rabbit/)
-# RABBIT - Activity-Based Bot Identification Tool
+# RABBIT is an Activity-Based Bot Identification Tool
 </div>
 
 ---
+
+**Notice:** RABBIT is rebranded as **RABBIT-ng**, partly to reflect its revamped CLI interface and improved internal code structure, and partly to address a name collision on PyPI.
 
 ## Overview
 
@@ -56,10 +58,10 @@ it can predict **thousands of accounts per hour** without reaching GitHub's impo
 
 ### Installation
 
-> RABBIT requires at least **Python 3.11**.
+RABBIT-ng requires at least **Python 3.11**.
 
 #### Option A: Using [uv](https://docs.astral.sh/uv/) 
-This installs RABBIT in an isolated environment, keeping your system clean.  
+This installs RABBIT-ng in an isolated environment, keeping your system clean.  
 You can find more details on how to install `uv` in its [official documentation](https://docs.astral.sh/uv/getting-started/installation).
 ```shell
 $ uv tool install rabbit-ng
@@ -76,9 +78,9 @@ $ pip install rabbit-ng
 ```
 
 #### Option C: Using Nix
-RABBIT is also available via [Nix](https://search.nixos.org/packages?channel=unstable&show=rabbit&from=0&size=50&sort=relevance&type=packages&query=rabbit)
+RABBIT is also available via [Nix](https://search.nixos.org/packages?channel=unstable&type=packages&query=rabbit-ng)
 ```shell
-$ nix-shell -p rabbit
+$ nix-shell -p rabbit-ng
 ```
 
 ### Configuration (API Key)
