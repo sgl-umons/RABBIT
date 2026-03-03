@@ -308,10 +308,13 @@ It is part of a research article titled "A Bot Identification Model and Tool bas
 
 If you use RABBIT in your research, please cite it using the following BibTeX entry:
 ```bibtex
-@article{Chidambaram_RABBIT_A_tool,
+@inproceedings{RABBIT,
 author = {Chidambaram, Natarajan and Mens, Tom and Decan, Alexandre},
-doi = {10.1145/3643991.3644877},
-title = {{RABBIT: A tool for identifying bot accounts based on their recent GitHub event history}}
+title = {RABBIT: A tool for identifying bot accounts based on their recent GitHub event history},
+year = {2024},
+publisher = {ACM},
+doi = {https://doi.org/10.1145/3643991.3644877},
+booktitle = {21st International Conference on Mining Software Repositories (MSR)}
 }
 ```
 
