@@ -22,7 +22,7 @@ mean, median, std, Gini coefficient, and/or IQR.
 import numpy as np
 import pandas as pd
 
-__all__ = ["ActivityFeatureExtractor", "FEATURE_NAMES"]
+__all__ = ["FEATURE_NAMES", "ActivityFeatureExtractor"]
 
 # Constants
 TIME_UNIT = "1 hour"

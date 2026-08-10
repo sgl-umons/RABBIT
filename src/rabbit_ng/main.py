@@ -1,12 +1,10 @@
 import logging
 from collections.abc import Iterator
 
-
-from .predictor.models import Predictor, ONNXPredictor
-from .sources import GitHubAPIExtractor
+from .errors import NotFoundError, RabbitErrors
 from .predictor import ContributorResult, predict_user_type
-from .errors import RabbitErrors, NotFoundError
-
+from .predictor.models import ONNXPredictor, Predictor
+from .sources import GitHubAPIExtractor
 
 logger = logging.getLogger(__name__)
 
@@ -60,7 +58,7 @@ def _process_single_contributor(
     except RabbitErrors as _:
         raise
     except Exception as err:
-        raise RabbitErrors(f"A critical error occurred: {str(err)}") from err
+        raise RabbitErrors(f"A critical error occurred: {err!s}") from err
 
 
 def run_rabbit(

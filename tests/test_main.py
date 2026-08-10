@@ -1,12 +1,11 @@
 from unittest.mock import patch
 
 import pytest
-
+from rabbit_ng.errors import RabbitErrors
 from rabbit_ng.main import (
     _process_single_contributor,
     run_rabbit,
 )
-from rabbit_ng.errors import RabbitErrors
 from rabbit_ng.predictor import ContributorResult
 
 

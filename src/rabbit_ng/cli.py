@@ -1,23 +1,21 @@
 import csv
+import logging
 import os
 import sys
 from enum import Enum
 from pathlib import Path
 from typing import Annotated
 
+import typer
+from dotenv import load_dotenv
 from rich.console import Console
 from rich.logging import RichHandler
+from rich.progress import BarColumn, Progress, SpinnerColumn, TextColumn
 from rich.text import Text
-from dotenv import load_dotenv
-
-import typer
-import logging
-
-from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn
 from rich.theme import Theme
 
-from .predictor import ContributorResult, FEATURE_NAMES
-from . import run_rabbit, RetryableError
+from . import RetryableError, run_rabbit
+from .predictor import FEATURE_NAMES, ContributorResult
 
 load_dotenv()
 
@@ -89,9 +87,13 @@ def _concat_all_contributors(
 class RabbitUI:
     """Manages incremental display with progress bar for CLI output."""
 
-    COLUMN_WIDTHS = {"login": 30, "type": 12, "confidence": 10}
-
     def __init__(self, total: int, fmt: OutputFormat, display_features: bool = False):
+        self.COLUMN_WIDTHS = {
+            "login": 30,
+            "type": 12,
+            "confidence": 10,
+        }
+
         self.fmt = fmt
         self.total = total
         self.display_features = display_features
@@ -340,9 +342,7 @@ def cli(
         logger.error(f"Network issue occurred: {e}")
         raise typer.Exit(code=2)
     except Exception as e:
-        logger.critical(
-            f"Unexpected error: {e}", exc_info=True if verbose > 0 else False
-        )
+        logger.critical(f"Unexpected error: {e}", exc_info=verbose > 0)
         raise typer.Exit(code=3)
 
 

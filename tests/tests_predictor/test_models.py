@@ -1,8 +1,8 @@
-import pytest
-
-from rabbit_ng.predictor.models import ONNXPredictor
 import os
+
 import pandas as pd
+import pytest
+from rabbit_ng.predictor.models import ONNXPredictor
 
 
 class TestPredictor:

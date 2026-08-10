@@ -3,9 +3,8 @@ from unittest.mock import patch
 
 import pytest
 import responses
-from typer.testing import CliRunner
-
 from rabbit_ng.cli import app
+from typer.testing import CliRunner
 
 runner = CliRunner()
 

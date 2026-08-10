@@ -1,5 +1,6 @@
-from datetime import datetime, timedelta
+import logging
 from collections.abc import Iterator
+from datetime import UTC, datetime, timedelta
 
 import requests
 
@@ -10,8 +11,6 @@ from ..errors import (
     RetryableError,
 )
 from .retry_utils import retry
-
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -71,14 +70,14 @@ class GitHubAPIExtractor:
                 if response.headers.get("retry-after"):
                     retry_after = int(response.headers.get("retry-after"))
                     reset_time = (
-                        datetime.now() + timedelta(seconds=retry_after)
+                        datetime.now(UTC) + timedelta(seconds=retry_after)
                     ).strftime("%Y-%m-%d %H:%M:%S")
                     raise RateLimitExceededError(reset_time)
                 if response.headers.get("x-ratelimit-remaining") == 0:
                     reset_time = response.headers.get("x-ratelimit-reset")
-                    reset_time = datetime.fromtimestamp(int(reset_time)).strftime(
-                        "%Y-%m-%d %H:%M:%S"
-                    )
+                    reset_time = datetime.fromtimestamp(
+                        int(reset_time), tz=UTC
+                    ).strftime("%Y-%m-%d %H:%M:%S")
                     raise RateLimitExceededError(reset_time)
                 if (
                     not self.api_key

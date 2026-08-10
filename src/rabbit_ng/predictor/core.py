@@ -1,10 +1,10 @@
-from dataclasses import dataclass, field
 import logging
+from dataclasses import dataclass, field
 
-from ghmap.mapping.activity_mapper import ActivityMapper
-from ghmap.mapping.action_mapper import ActionMapper
-from ghmap.utils import load_json_file
 from ghmap.cli import find_valid_mappings, split_events_by_mapping_versions
+from ghmap.mapping.action_mapper import ActionMapper
+from ghmap.mapping.activity_mapper import ActivityMapper
+from ghmap.utils import load_json_file
 
 from .features import ActivityFeatureExtractor
 from .models import Predictor
