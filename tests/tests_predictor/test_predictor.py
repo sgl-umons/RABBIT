@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from rabbit_ng.predictor import predict_user_type, ONNXPredictor
+from rabbit_ng.predictor import ONNXPredictor, predict_user_type
 
 
 class TestPredictor:

@@ -5,13 +5,13 @@ This module provides an abstract interface for bot classification models and
 an ONNX Runtime implementation that loads and runs the pre-trained BIMBAS model.
 """
 
-from importlib.resources import files
 import logging
+from abc import ABC, abstractmethod
+from importlib.resources import files
 
 import numpy as np
 import onnxruntime
 from pandas import DataFrame
-from abc import ABC, abstractmethod
 
 logger = logging.getLogger(__name__)
 
@@ -66,7 +66,6 @@ class Predictor(ABC):
             confidence (float) - confidence score of the determined type
                 (value between 0.0 and 1.0)
         """
-        pass
 
 
 class ONNXPredictor(Predictor):

@@ -216,15 +216,15 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv()  # Load GITHUB_API_KEY from .env file if present
-API_KEY = os.getenv('GITHUB_API_KEY')
+API_KEY = os.getenv("GITHUB_API_KEY")
 
 for result in run_rabbit(
-        contributors=['MrRose765', 'github-actions[bot]'],
-        api_key=API_KEY,
-        min_events=5,
-        min_confidence=1.0,
-        max_queries=3,
-        no_wait=False
+    contributors=["MrRose765", "github-actions[bot]"],
+    api_key=API_KEY,
+    min_events=5,
+    min_confidence=1.0,
+    max_queries=3,
+    no_wait=False,
 ):
     # Each result is an ContributorResult object with 'contributor', 'type', 'confidence', and 'features' attributes
     print(f"{result.contributor}: {result.user_type} (Confidence: {result.confidence})")
@@ -242,16 +242,18 @@ In that case, you need to provide a list of events for each contributor as input
 from rabbit_ng.predictor import ONNXPredictor, predict_user_type
 
 events = {
-    'MrRose765': [
+    "MrRose765": [
         # List of event dictionaries for MrRose765 ONLY
     ],
-    'testuser': [
+    "testuser": [
         # List of event dictionaries for testuser ONLY
     ],
 }
 
 # Load the pre-trained model
-predictor = ONNXPredictor()  # Default model path is used, you can provide a custom path if needed.
+predictor = (
+    ONNXPredictor()
+)  # Default model path is used, you can provide a custom path if needed.
 
 for contributor, user_events in events.items():
     result = predict_user_type(

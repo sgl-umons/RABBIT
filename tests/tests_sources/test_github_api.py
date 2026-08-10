@@ -1,16 +1,15 @@
 import itertools
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from unittest.mock import Mock, patch
 
 import pytest
-
-from rabbit_ng.sources import GitHubAPIExtractor
 from rabbit_ng.errors import (
-    RetryableError,
-    RateLimitExceededError,
-    NotFoundError,
     APIRequestError,
+    NotFoundError,
+    RateLimitExceededError,
+    RetryableError,
 )
+from rabbit_ng.sources import GitHubAPIExtractor
 
 
 class TestGitHubAPIExtractor:
@@ -182,7 +181,7 @@ class TestGitHubAPIExtractorAPIResponses(TestGitHubAPIExtractor):
         self, mock_sleep, mock_get, extractor, mock_success
     ):
         """Test if query_events() raises RateLimitExceededError on rate limit exceeded."""
-        future_time = int((datetime.now() + timedelta(hours=1)).timestamp())
+        future_time = int((datetime.now(UTC) + timedelta(hours=1)).timestamp())
         mock_fail = Mock()
         mock_fail.status_code = 429
         mock_fail.headers.get = lambda key: (
@@ -226,11 +225,13 @@ class TestGitHubAPIExtractorAPIResponses(TestGitHubAPIExtractor):
         mock_response.reason = "Rate limit exceeded"
         mock_response.headers.get = lambda key: None
 
-        with patch(
-            "rabbit_ng.sources.github_api.requests.get", return_value=mock_response
+        with (
+            patch(
+                "rabbit_ng.sources.github_api.requests.get", return_value=mock_response
+            ),
+            pytest.raises(RateLimitExceededError) as exc_info,
         ):
-            with pytest.raises(RateLimitExceededError) as exc_info:
-                next(extractor_no_key.query_events("testuser"))
+            next(extractor_no_key.query_events("testuser"))
 
         assert "rate limit" in str(exc_info.value).lower()
 
